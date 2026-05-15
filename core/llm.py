@@ -1,6 +1,6 @@
 """Thin wrapper around the OpenAI Chat Completions API with retry."""
 from __future__ import annotations
- 
+
 import logging
 from typing import Iterable
 
