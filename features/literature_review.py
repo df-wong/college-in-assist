@@ -1,4 +1,4 @@
-"""Search arXiv + PubMed and synthesize a literature review."""
+"""Search arXiv + PubMed + Google Scholar and synthesize a literature review."""
 from __future__ import annotations
 
 import logging
@@ -6,13 +6,14 @@ import logging
 from core.llm import LLM
 from core.prompts import LITREVIEW_SYSTEM, LITREVIEW_USER_TEMPLATE
 from sources import arxiv_client, pubmed_client
+from sources import scholar_client
 from sources.models import Paper
 
 log = logging.getLogger(__name__)
 
 
 def search_all(topic: str, pubmed_email: str, per_source: int = 5) -> list[Paper]:
-    """Query arXiv and PubMed in parallel-ish (sequential for now), dedupe by title."""
+    """Query arXiv, PubMed, and Google Scholar, then dedupe by title."""
     results: list[Paper] = []
     try:
         results.extend(arxiv_client.search(topic, max_results=per_source))
@@ -22,6 +23,10 @@ def search_all(topic: str, pubmed_email: str, per_source: int = 5) -> list[Paper
         results.extend(pubmed_client.search(topic, email=pubmed_email, max_results=per_source))
     except Exception as exc:  # noqa: BLE001
         log.warning("pubmed failed: %s", exc)
+    try:
+        results.extend(scholar_client.search(topic, max_results=per_source))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("google scholar failed: %s", exc)
 
     seen: set[str] = set()
     deduped: list[Paper] = []
