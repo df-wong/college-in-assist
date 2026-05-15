@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import io
 import logging
-import tempfile
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -247,7 +246,7 @@ def detect_possible_conversions(mime_type: str | None, filename: str | None) -> 
         options.extend(["word_to_pdf", "word_to_png", "word_to_txt"])
     elif mime_type == "text/plain" or ext == ".txt":
         options.extend(["txt_to_word", "txt_to_pdf"])
-    elif mime_type and mime_type.startswith("image/") or ext in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
+    elif (mime_type and mime_type.startswith("image/")) or ext in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
         options.append("png_to_pdf")
 
     return options

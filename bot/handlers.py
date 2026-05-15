@@ -66,6 +66,17 @@ async def _send_long(update: Update, text: str) -> None:
     chunk: list[str] = []
     size = 0
     for para in text.split("\n\n"):
+        # If a single paragraph exceeds LIMIT, hard-split it by character
+        if len(para) > LIMIT:
+            # Flush existing chunk first
+            if chunk:
+                await update.effective_message.reply_text("\n\n".join(chunk))
+                chunk, size = [], 0
+            # Split the oversized paragraph into LIMIT-sized pieces
+            for i in range(0, len(para), LIMIT):
+                await update.effective_message.reply_text(para[i:i + LIMIT])
+            continue
+
         if size + len(para) + 2 > LIMIT and chunk:
             await update.effective_message.reply_text("\n\n".join(chunk))
             chunk, size = [], 0
@@ -104,9 +115,9 @@ async def _do_summarize(update: Update, context: ContextTypes.DEFAULT_TYPE, sour
     await _typing(update)
     try:
         if source.startswith("http://") or source.startswith("https://"):
-            text = pdf.extract_text_from_url(source) if source.lower().endswith(".pdf") else source
-            if not source.lower().endswith(".pdf"):
-                # treat as URL to a landing page; user can paste abstract instead
+            if source.lower().endswith(".pdf"):
+                text = pdf.extract_text_from_url(source)
+            else:
                 await update.effective_message.reply_text(
                     "I can only fetch PDFs by URL. For HTML pages, please paste the abstract or upload the PDF."
                 )
