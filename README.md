@@ -1,7 +1,7 @@
 # College-In Research Assistant
 
 A Telegram bot that helps researchers, students, and academics analyze academic papers and accelerate their research workflow through natural-language conversation.
-
+ 
 ## Features
 
 | Command | What it does |
